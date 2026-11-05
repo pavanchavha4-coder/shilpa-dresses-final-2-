@@ -1,0 +1,106 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Catch-All Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 64 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'pavanchavha4@gmail.com' ||
+        request.auth.token.email == 'admin@shilpadresses.com'
+      );
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Products collection: Public read, Admin write
+    match /products/{productId} {
+      allow read: if isValidId(productId);
+      allow create: if isAdmin() && isValidId(productId) &&
+        incoming().name is string && incoming().name.size() <= 128 &&
+        incoming().category is string && incoming().category.size() <= 64 &&
+        incoming().price is number && incoming().price >= 0 &&
+        incoming().stock is number && incoming().stock >= 0 &&
+        incoming().imageUrl is string && incoming().imageUrl.size() <= 500;
+      allow update: if isAdmin() && isValidId(productId);
+      allow delete: if isAdmin() && isValidId(productId);
+    }
+
+    // Categories collection: Public read, Admin write
+    match /categories/{categoryId} {
+      allow read: if isValidId(categoryId);
+      allow write: if isAdmin() && isValidId(categoryId);
+    }
+
+    // Trial Bookings:
+    // - Customers can create bookings with initial status "Pending" and valid phone/date
+    // - Customers can view their own booking if matching phone or bookingId
+    // - Admins can read, update status (Pending, Accepted, Rejected, Completed, Cancelled), and manage all
+    match /trialBookings/{bookingId} {
+      allow read: if isValidId(bookingId) && (
+        isAdmin() || 
+        (resource != null && request.query.limit <= 50)
+      );
+      
+      allow create: if isValidId(bookingId) &&
+        incoming().bookingCode is string && incoming().bookingCode.size() <= 32 &&
+        incoming().customerName is string && incoming().customerName.size() <= 100 &&
+        incoming().customerPhone is string && incoming().customerPhone.size() <= 20 &&
+        incoming().productId is string && incoming().productId.size() <= 64 &&
+        incoming().selectedSize is string && incoming().selectedSize.size() <= 16 &&
+        incoming().trialDate is string && incoming().trialDate.size() <= 10 &&
+        incoming().trialTimeSlot is string && incoming().trialTimeSlot.size() <= 20 &&
+        incoming().status == 'Pending';
+
+      allow update: if isValidId(bookingId) && (
+        isAdmin() ||
+        // Customer can cancel their own pending booking
+        (existing().status == 'Pending' && incoming().status == 'Cancelled' && 
+         incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']))
+      );
+
+      allow delete: if isAdmin() && isValidId(bookingId);
+    }
+
+    // Trial Availability: Public read (to check open slots), Admin write
+    match /trialAvailability/{availabilityId} {
+      allow read: if isValidId(availabilityId);
+      allow write: if isAdmin() && isValidId(availabilityId);
+    }
+
+    // Sales: Strictly Admin only (Customer access completely blocked)
+    match /sales/{saleId} {
+      allow read, write: if isAdmin() && isValidId(saleId);
+    }
+
+    // Store App Settings: Public read, Admin write
+    match /appSettings/{settingId} {
+      allow read: if isValidId(settingId);
+      allow write: if isAdmin() && isValidId(settingId);
+    }
+
+    // Admins list: Strictly Admin only
+    match /admins/{adminId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

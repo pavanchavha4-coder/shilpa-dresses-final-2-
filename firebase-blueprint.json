@@ -1,0 +1,147 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Boutique clothing item available for sale and trial",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_-]+$" },
+        "name": { "type": "string", "maxLength": 128 },
+        "category": { "type": "string", "maxLength": 64, "enum": ["Women's Wear", "Men's Wear", "Kids Wear", "Bridal & Couture"] },
+        "subcategory": { "type": "string", "maxLength": 64 },
+        "price": { "type": "number" },
+        "originalPrice": { "type": "number" },
+        "description": { "type": "string", "maxLength": 1000 },
+        "fabric": { "type": "string", "maxLength": 64 },
+        "sizes": { "type": "array" },
+        "colors": { "type": "array" },
+        "stock": { "type": "number" },
+        "lowStockThreshold": { "type": "number" },
+        "featured": { "type": "boolean" },
+        "isNewArrival": { "type": "boolean" },
+        "imageUrl": { "type": "string", "maxLength": 500 },
+        "additionalImages": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "category", "price", "stock", "imageUrl"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product category grouping",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_-]+$" },
+        "name": { "type": "string", "maxLength": 64 },
+        "description": { "type": "string", "maxLength": 256 },
+        "imageUrl": { "type": "string", "maxLength": 500 },
+        "itemCount": { "type": "number" }
+      },
+      "required": ["id", "name"]
+    },
+    "TrialBooking": {
+      "title": "TrialBooking",
+      "description": "VIP In-Store dress trial reservation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_-]+$" },
+        "bookingCode": { "type": "string", "maxLength": 32 },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "customerPhone": { "type": "string", "maxLength": 20 },
+        "customerEmail": { "type": "string", "maxLength": 100 },
+        "productId": { "type": "string", "maxLength": 64 },
+        "productName": { "type": "string", "maxLength": 128 },
+        "productImage": { "type": "string", "maxLength": 500 },
+        "productPrice": { "type": "number" },
+        "selectedSize": { "type": "string", "maxLength": 16 },
+        "trialDate": { "type": "string", "maxLength": 10 },
+        "trialTimeSlot": { "type": "string", "maxLength": 20 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "maxLength": 20, "enum": ["Pending", "Accepted", "Rejected", "Completed", "Cancelled"] },
+        "adminNotes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "bookingCode", "customerName", "customerPhone", "productId", "selectedSize", "trialDate", "trialTimeSlot", "status"]
+    },
+    "TrialAvailability": {
+      "title": "TrialAvailability",
+      "description": "Store booking availability slots and blocked dates",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "date": { "type": "string", "maxLength": 10 },
+        "timeSlots": { "type": "array" },
+        "isBlocked": { "type": "boolean" },
+        "blockedReason": { "type": "string", "maxLength": 200 }
+      },
+      "required": ["id", "date", "isBlocked"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "Boutique store sale and billing record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_-]+$" },
+        "invoiceNumber": { "type": "string", "maxLength": 32 },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "customerPhone": { "type": "string", "maxLength": 20 },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "discount": { "type": "number" },
+        "tax": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "paymentMethod": { "type": "string", "maxLength": 32, "enum": ["Cash", "UPI", "Card", "Bank Transfer"] },
+        "trialBookingId": { "type": "string", "maxLength": 64 },
+        "soldBy": { "type": "string", "maxLength": 100 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "invoiceNumber", "totalAmount", "paymentMethod", "timestamp"]
+    },
+    "AppSetting": {
+      "title": "AppSetting",
+      "description": "Store metadata, timings, and configuration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "storeName": { "type": "string", "maxLength": 100 },
+        "tagline": { "type": "string", "maxLength": 150 },
+        "brandOwner": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "address": { "type": "string", "maxLength": 300 },
+        "openingTime": { "type": "string", "maxLength": 10 },
+        "closingTime": { "type": "string", "maxLength": 10 },
+        "maxTrialsPerSlot": { "type": "number" },
+        "trialDurationMinutes": { "type": "number" }
+      },
+      "required": ["id", "storeName"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Boutique garments catalogue available to customers"
+    },
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Garment classifications"
+    },
+    "/trialBookings/{bookingId}": {
+      "schema": "TrialBooking",
+      "description": "Trial reservations created by customers or owners"
+    },
+    "/trialAvailability/{availabilityId}": {
+      "schema": "TrialAvailability",
+      "description": "Store schedule slot blocks and limits"
+    },
+    "/sales/{saleId}": {
+      "schema": "Sale",
+      "description": "Store sales receipts and transactions"
+    },
+    "/appSettings/{settingId}": {
+      "schema": "AppSetting",
+      "description": "Global store and boutique configuration"
+    }
+  }
+}

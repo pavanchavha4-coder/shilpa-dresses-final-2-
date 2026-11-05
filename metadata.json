@@ -1,0 +1,6 @@
+{
+  "name": "SHILPA DRESSES - Luxury Boutique & Trial Studio",
+  "description": "Premium clothing store and VIP trial booking application by NEXORA Technologies, featuring 3D dress mannequin inspection, real-time inventory, and boutique owner management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
