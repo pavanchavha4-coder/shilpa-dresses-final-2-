@@ -53,6 +53,12 @@ jobs:
           fi
           npx cap sync android
 
+      - name: Generate Android App Icon
+        run: |
+          mkdir -p assets
+          cp public/icon.png assets/icon.png
+          npx --yes @capacitor/assets generate --android
+
       - name: Grant Gradle Permission
         run: chmod +x android/gradlew
 
